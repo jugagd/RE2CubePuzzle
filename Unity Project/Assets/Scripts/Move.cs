@@ -16,25 +16,25 @@ public class Move : MonoBehaviour
     int cubeSelectedNumber = 1;
     Cube cubeSelected;
     Vector3 initalTransform;
-    float delta;
-    float endAngle;
     
     void Start ()
     {
-        Invoke("LateStart", 1f);
-        
+        cubeSelected = cube1;
+        cubeSelected.SelectCube();
     }
 
-    void LateStart()
-    {
-        cubeSelected = cube1;
-        cubeSelected.Up();
-        delta = endMarker.position.y - cubeSelected.transform.position.y;
-    }
     void changeCube(int cubeNumber)
     {
-        cubeSelected.Down();
-        switch (cubeNumber)
+        cubeSelected.DeselectCube();
+        if (cube1.cubeNumber==cubeNumber)
+            cubeSelected = cube1;
+        if (cube2.cubeNumber == cubeNumber)
+            cubeSelected = cube2;
+        if (cube3.cubeNumber == cubeNumber)
+            cubeSelected = cube3;
+        if (cube4.cubeNumber == cubeNumber)
+            cubeSelected = cube4;
+        /*switch (cubeNumber)
         {
             case 1:
                 cubeSelected = cube1;
@@ -50,55 +50,79 @@ public class Move : MonoBehaviour
                 break;
             default:
                 break;
-        }
-        cubeSelected.Up();
-
+        }*/
+        cubeSelected.SelectCube();
     }
 	void Update ()
     {
-        /*if (porc>10)
-        {
-            cubeSelected.transform.Translate(cubeSelected.transform.up * speed * Time.deltaTime * porc / 100f);
-            porc = (endMarker.position.y - cubeSelected.transform.position.y) * 100 / delta;
-        }*/
-
-
         if (Input.GetKeyDown(KeyCode.DownArrow))
-            endAngle -=90f;
+            cubeSelected.RotateCube(-90f);
         if (Input.GetKeyDown(KeyCode.UpArrow))
-            endAngle += 90f;
+            cubeSelected.RotateCube(90f);
 
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
-            
-            cubeSelectedNumber++;
-            if (cubeSelectedNumber>4)
-                cubeSelectedNumber = 4;
-            changeCube(cubeSelectedNumber);
-            
+            Debug.Log(cubeSelected.up);
+            if (!cubeSelected.up)
+            {
+                cubeSelectedNumber++;
+                if (cubeSelectedNumber > 4)
+                    cubeSelectedNumber = 4;
+                changeCube(cubeSelectedNumber);
+            }
+            else
+            {
+                if (cubeSelected.cubeNumber < 4)
+                {
+                    Debug.Log("Cambio");
+                    cubeSelected.MoveHorizontal(1);
+                    cubeSelected.cubeNumber=0;
+                    cubeSelectedNumber++;
+                    changeCube(cubeSelectedNumber);
+                    cubeSelected.MoveHorizontal(-1);
+                    cubeSelected.cubeNumber--;
+                    //cubeSelectedNumber=0;
+                    changeCube(0);
+                    cubeSelected.cubeNumber = cubeSelectedNumber;
+                }
+                
+            }
         }
 
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
-
-            cubeSelectedNumber--;
-            if (cubeSelectedNumber < 1)
-                cubeSelectedNumber = 1;
-            changeCube(cubeSelectedNumber);
-
+            Debug.Log(cubeSelected.up);
+            if (!cubeSelected.up)
+            {
+                cubeSelectedNumber--;
+                if (cubeSelectedNumber < 1)
+                    cubeSelectedNumber = 1;
+                changeCube(cubeSelectedNumber);
+            }
+            else
+            {
+                if (cubeSelected.cubeNumber > 1)
+                {
+                    cubeSelected.MoveHorizontal(-1);
+                    cubeSelected.cubeNumber = 0;
+                    cubeSelectedNumber--;
+                    changeCube(cubeSelectedNumber);
+                    cubeSelected.MoveHorizontal(1);
+                    cubeSelected.cubeNumber++;
+                    //cubeSelectedNumber=0;
+                    changeCube(0);
+                    cubeSelected.cubeNumber = cubeSelectedNumber;
+                }
+            }
+            
         }
 
-        if (endAngle<0)
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            cubeSelected.transform.Rotate(cubeSelected.transform.right, -rotationSpeed*Time.deltaTime);
-            endAngle+=rotationSpeed*Time.deltaTime;
+            if (cubeSelected.up)
+                cubeSelected.MoveVertical(-1);
+            else
+                cubeSelected.MoveVertical(1);            
         }
-        if (endAngle>0)
-        {
-            cubeSelected.transform.Rotate(cubeSelected.transform.right, +rotationSpeed * Time.deltaTime);
-            endAngle -= rotationSpeed * Time.deltaTime;
-        }
-        if (endAngle>-1&&endAngle<1)
-            endAngle = 0;
     }
 }
